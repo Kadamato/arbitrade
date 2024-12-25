@@ -1,72 +1,72 @@
-import { addTokenToDB } from "../db/mongodb";
-import { DexObject } from "../type";
-import filterTokens from "../utils/filterToken";
-import findPricePairBest from "../utils/findPriceBest";
-import getPricePairAPI from "./getPricePair";
+// import { addTokenToDB } from "../db/mongodb";
+// import { DexObject } from "../type";
+// import filterTokens from "../utils/filterToken";
+// import findPricePairBest from "../utils/findPriceBest";
+// import getPricePairAPI from "./getPricePair";
 
-const NATIVE_SOL = "So11111111111111111111111111111111111111112";
+// const NATIVE_SOL = "So11111111111111111111111111111111111111112";
 
-export default async function getMeteoraTokens() {
-  const page = 2;
-  const size = 200;
-  const url = `https://app.meteora.ag/amm/pools/search?page=${page}&size=${size}&sort_key=tvl&order_by=desc`;
+// export default async function getMeteoraTokens() {
+//   const page = 2;
+//   const size = 200;
+//   const url = `https://app.meteora.ag/amm/pools/search?page=${page}&size=${size}&sort_key=tvl&order_by=desc`;
 
-  try {
-    const resp = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+//   try {
+//     const resp = await fetch(url, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     });
 
-    const data = await resp.json();
+//     const data = await resp.json();
 
-    const tokens = data.data;
+//     const tokens = data.data;
 
-    const filteredTokens = tokens.filter((token: any) => {
-      const address = token.pool_token_mints.find(
-        (add: any) => add === NATIVE_SOL
-      );
+//     const filteredTokens = tokens.filter((token: any) => {
+//       const address = token.pool_token_mints.find(
+//         (add: any) => add === NATIVE_SOL
+//       );
 
-      return address;
-    });
+//       return address;
+//     });
 
-    const tokenList = new Set();
+//     const tokenList = new Set();
 
-    filteredTokens.map((token: any) => {
-      const tokenAddress = token.pool_token_mints.filter(
-        (ta: any) => ta !== NATIVE_SOL
-      )[0];
-      tokenList.add({
-        tokenAddress,
-        token,
-      });
-    });
+//     filteredTokens.map((token: any) => {
+//       const tokenAddress = token.pool_token_mints.filter(
+//         (ta: any) => ta !== NATIVE_SOL
+//       )[0];
+//       tokenList.add({
+//         tokenAddress,
+//         token,
+//       });
+//     });
 
-    console.log("Loading tokens...");
+//     console.log("Loading tokens...");
 
-    tokenList.forEach(async (token: any) => {
-      const tokenPrices = (await getPricePairAPI(
-        token.tokenAddress
-      )) as DexObject[];
+//     tokenList.forEach(async (token: any) => {
+//       const tokenPrices = (await getPricePairAPI(
+//         token.tokenAddress
+//       )) as DexObject[];
 
-      if (tokenPrices && tokenPrices.length > 0) {
-        const filteredTokens = filterTokens(tokenPrices);
+//       if (tokenPrices && tokenPrices.length > 0) {
+//         const filteredTokens = filterTokens(tokenPrices);
 
-        if (filteredTokens.length >= 2) {
-          await addTokenToDB({
-            tokenName: token.token.pool_name,
-            tokenSymbol: "",
-            tokenAddress: token.tokenAddress,
-          });
-        }
-      }
-    });
+//         if (filteredTokens.length >= 2) {
+//           await addTokenToDB({
+//             tokenName: token.token.pool_name,
+//             tokenSymbol: "",
+//             tokenAddress: token.tokenAddress,
+//           });
+//         }
+//       }
+//     });
 
-    console.log("Tokens loaded successfully!");
-  } catch (error) {
-    console.error(error);
-  }
-}
+//     console.log("Tokens loaded successfully!");
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
 
-getMeteoraTokens().then((data) => console.log(data));
+// getMeteoraTokens().then((data) => console.log(data));
